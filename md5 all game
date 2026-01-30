@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MD5 Tài Xỉu Backtest</title>
+
+<style>
+body {
+  margin: 0;
+  background: #020617;
+  color: #e5e7eb;
+  font-family: system-ui, sans-serif;
+  padding: 16px;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: #0f172a;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #1e293b;
+}
+h1 {
+  text-align: center;
+  color: #38bdf8;
+}
+textarea {
+  width: 100%;
+  min-height: 140px;
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 12px;
+  resize: vertical;
+}
+button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg,#38bdf8,#0ea5e9);
+  color: #020617;
+  font-weight: 700;
+  cursor: pointer;
+}
+.report {
+  margin-top: 20px;
+  background: #020617;
+  border-radius: 14px;
+  border: 1px solid #1e293b;
+  padding: 16px;
+}
+.stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.tai { color: #facc15; font-weight: 700; }
+.xiu { color: #22c55e; font-weight: 700; }
+.small {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>📊 MD5 TÀI XỈU BACKTEST</h1>
+
+  <p class="small">
+    Dán danh sách MD5 (mỗi dòng 1 mã – 32 ký tự hex)
+  </p>
+
+  <textarea id="md5List" placeholder="Ví dụ:
+e4d909c290d0fb1ca068ffaddf22cbd0
+827ccb0eea8a706c4c34a16891f84e7b
+..."></textarea>
+
+  <button onclick="runBacktest()">🚀 Chạy phân tích</button>
+
+  <div id="report" class="report" style="display:none"></div>
+</div>
+
+<script>
+function analyzeMD5(md5) {
+  // Thuật toán deterministic
+  const last8 = md5.slice(-8);
+  const decimal = parseInt(last8, 16);
+  return decimal % 2 === 1 ? "TÀI" : "XỈU";
+}
+
+function runBacktest() {
+  const raw = document.getElementById("md5List").value
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+
+  const md5s = raw.filter(m => /^[a-f0-9]{32}$/.test(m));
+
+  if (md5s.length === 0) {
+    alert("Không có MD5 hợp lệ");
+    return;
+  }
+
+  let tai = 0, xiu = 0;
+  let maxTai = 0, maxXiu = 0;
+  let curTai = 0, curXiu = 0;
+
+  md5s.forEach(md5 => {
+    const r = analyzeMD5(md5);
+    if (r === "TÀI") {
+      tai++;
+      curTai++;
+      curXiu = 0;
+      maxTai = Math.max(maxTai, curTai);
+    } else {
+      xiu++;
+      curXiu++;
+      curTai = 0;
+      maxXiu = Math.max(maxXiu, curXiu);
+    }
+  });
+
+  const total = md5s.length;
+  const taiPct = (tai / total * 100).toFixed(2);
+  const xiuPct = (xiu / total * 100).toFixed(2);
+  const diff = Math.abs(taiPct - xiuPct).toFixed(2);
+
+  document.getElementById("report").style.display = "block";
+  document.getElementById("report").innerHTML = `
+    <div class="stat"><span>Tổng số ván</span><b>${total}</b></div>
+    <div class="stat"><span class="tai">TÀI</span><span class="tai">${tai} (${taiPct}%)</span></div>
+    <div class="stat"><span class="xiu">XỈU</span><span class="xiu">${xiu} (${xiuPct}%)</span></div>
+    <hr style="border:0;border-top:1px solid #1e293b;margin:10px 0">
+    <div class="stat"><span>Chuỗi TÀI dài nhất</span><b>${maxTai}</b></div>
+    <div class="stat"><span>Chuỗi XỈU dài nhất</span><b>${maxXiu}</b></div>
+    <div class="stat"><span>Độ lệch %</span><b>${diff}%</b></div>
+    <p class="small">
+      ⚠️ Độ lệch lớn chỉ mang tính ngắn hạn – không đảm bảo ván tiếp theo
+    </p>
+  `;
+}
+</script>
+</body>
+</html>
