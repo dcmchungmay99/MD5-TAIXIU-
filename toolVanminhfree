@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>LC79B Clean UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family:Segoe UI,Arial;
+}
+
+/* GAME FULL */
+iframe{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:none;
+  z-index:1;
+}
+
+/* MINI PANEL */
+.panel{
+  position:fixed;
+  top:12px;
+  right:12px;
+  width:220px;
+  background:rgba(8,15,25,.9);
+  color:#00ffe7;
+  padding:10px;
+  border-radius:10px;
+  box-shadow:0 0 15px #00ffe755;
+  z-index:5;
+}
+.panel h4{
+  text-align:center;
+  font-size:14px;
+  margin-bottom:6px;
+}
+.panel input,.panel button{
+  width:100%;
+  padding:7px;
+  margin-top:6px;
+  border-radius:6px;
+  border:none;
+  font-size:12px;
+}
+.panel input{
+  background:#020b12;
+  color:#00ffe7;
+}
+.panel button{
+  background:#00ffe7;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+.result{
+  margin-top:6px;
+  background:#020b12;
+  padding:6px;
+  border-radius:6px;
+  font-size:11px;
+  word-break:break-all;
+}
+
+/* TOGGLE */
+.toggle{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:#00ffe7;
+  color:#000;
+  border:none;
+  padding:8px 12px;
+  border-radius:30px;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:6;
+}
+</style>
+</head>
+<body>
+
+<!-- GAME -->
+<iframe src="https://lc79b.bet" allowfullscreen></iframe>
+
+<!-- PANEL -->
+<div class="panel" id="panel">
+  <h4>MD5</h4>
+  <input id="input" placeholder="Mã / phiên">
+  <button onclick="analyze()">Xem</button>
+  <div class="result" id="predict">-</div>
+</div>
+
+<button class="toggle" onclick="togglePanel()">MD5</button>
+
+<script>
+function analyze(){
+  const v = document.getElementById("input").value.trim();
+  if(!v) return;
+
+  const md5 = CryptoJS.MD5(v).toString();
+
+  let sum = 0;
+  for(let c of md5.slice(-6)){
+    sum += parseInt(c,16);
+  }
+  const rs = sum % 2 === 0 ? "TÀI" : "XỈU";
+
+  document.getElementById("predict").innerText = rs;
+}
+
+function togglePanel(){
+  const p = document.getElementById("panel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+}
+</script>
+
+</body>
+</html>
